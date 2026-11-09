@@ -1,0 +1,41 @@
+﻿@model Raceday.Mvc.ViewModels.EventVm
+@{
+    ViewData["Title"] = Model.Name;
+    var cats = ViewData["Categories"] as List<Raceday.Mvc.ViewModels.CategoryVm> ?? new();
+}
+
+@if (!string.IsNullOrEmpty(Model.BannerImageUrl))
+{
+    <img src="@Model.BannerImageUrl" class="img-fluid rounded mb-3" style="max-height:320px;width:100%;object-fit:cover" alt="@Model.Name" />
+}
+
+<h2>@Model.Name</h2>
+<p class="text-muted">@Model.EventDate.ToString("ddd, dd MMM yyyy") · @Model.Location · @Model.DistanceKm km · <span class="badge bg-secondary">@Model.EventType</span></p>
+<p>@Model.Description</p>
+
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole("Participant"))
+{
+    <div class="card mt-4">
+        <div class="card-header fw-bold">Enter this event</div>
+        <div class="card-body">
+            @if (!cats.Any())
+            {
+                <div class="text-muted">No categories available yet.</div>
+            }
+            else
+            {
+                <form asp-action="Enrol" asp-controller="Participant" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="eventId" value="@Model.EventId" />
+                    <select name="categoryId" class="form-select mb-3" required>
+                        @foreach (var c in cats)
+                        {
+                            <option value="@c.CategoryId">@c.CategoryName @((c.MinAge.HasValue || c.MaxAge.HasValue) ? $"({c.MinAge}-{c.MaxAge} yrs)" : "")</option>
+                        }
+                    </select>
+                    <button class="btn btn-primary">Enrol</button>
+                </form>
+            }
+        </div>
+    </div>
+}
