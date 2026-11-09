@@ -1,0 +1,70 @@
+﻿@model List<dynamic>
+@{
+    ViewData["Title"] = "My Events";
+}
+
+<h2 class="mb-4">My Events</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You haven't enrolled in any events yet.
+        <a asp-action="Index" asp-controller="Home" class="alert-link">Browse upcoming events →</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Enrolled</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var en = item.Enrolment;
+                    var ev = item.Event;
+                    if (ev == null) { continue; }
+                    var badgeClass = en.Status switch
+                    {
+                        "Confirmed" => "badge-confirmed",
+                        "Pending" => "badge-pending",
+                        "Cancelled" => "badge-cancelled",
+                        _ => "bg-secondary"
+                    };
+                    <tr>
+                        <td>
+                            <a asp-action="Details" asp-controller="Home" asp-route-id="@ev.EventId" class="fw-bold text-decoration-none">
+                                @ev.Name
+                            </a>
+                        </td>
+                        <td>@ev.EventDate.ToString("dd MMM yyyy")</td>
+                        <td>@ev.Location</td>
+                        <td>@item.CategoryName</td>
+                        <td><span class="badge @badgeClass">@en.Status</span></td>
+                        <td>@en.EnrolmentDate.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (en.Status != "Cancelled")
+                            {
+                                <form asp-action="CancelEnrolment" method="post" class="d-inline"
+                                      onsubmit="return confirm('Cancel this enrolment?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@en.EnrolmentId" />
+                                    <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
