@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    var enrolmentCount = (int)(ViewData["EnrolmentCount"] ?? 0);
+    var upcomingCount = (int)(ViewData["UpcomingCount"] ?? 0);
+    var resultCount = (int)(ViewData["ResultCount"] ?? 0);
+    var firstName = User.Identity?.Name?.Split(' ').FirstOrDefault() ?? "Runner";
+}
+
+<section class="hero rounded mb-4">
+    <div class="container">
+        <h1>Welcome back, @firstName 👋</h1>
+        <p class="lead mb-0">Ready for your next race?</p>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="display-5 fw-bold">@enrolmentCount</div>
+                <div class="text-muted">Total Enrolments</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="display-5 fw-bold">@upcomingCount</div>
+                <div class="text-muted">Upcoming Events</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="display-5 fw-bold">@resultCount</div>
+                <div class="text-muted">Recorded Results</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <a asp-action="Index" asp-controller="Home" class="btn btn-primary w-100 py-3">Browse Events</a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="MyEvents" class="btn btn-outline-primary w-100 py-3">My Events</a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="MyResults" class="btn btn-outline-primary w-100 py-3">My Results</a>
+    </div>
+</div>
