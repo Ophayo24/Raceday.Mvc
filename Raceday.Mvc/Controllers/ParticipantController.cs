@@ -17,25 +17,34 @@ public class ParticipantController : Controller
         var events = await _api.GetEventsAsync();
         var results = await _api.MyResultsAsync();
 
-        var vm = new
-        {
-            EnrolmentCount = enrolments.Count,
-            UpcomingCount = events.Count(e => e.EventDate >= DateTime.Today),
-            ResultCount = results.Count
-        };
-        return View(vm);
+        ViewData["EnrolmentCount"] = enrolments.Count;
+        ViewData["UpcomingCount"] = events.Count(e => e.EventDate >= DateTime.Today);
+        ViewData["ResultCount"] = results.Count;
+        return View();
     }
 
     public async Task<IActionResult> MyEvents()
     {
         var enrolments = await _api.MyEnrolmentsAsync();
         var events = await _api.GetEventsAsync();
-        var vm = enrolments.Select(en => new
+        var result = new List<dynamic>();
+        var categoryCache = new Dictionary<int, List<CategoryVm>>();
+
+        foreach (var en in enrolments)
         {
-            Enrolment = en,
-            Event = events.FirstOrDefault(e => e.EventId == en.EventId)
-        }).ToList();
-        return View(vm);
+            var ev = events.FirstOrDefault(e => e.EventId == en.EventId);
+            if (ev == null) continue;
+
+            if (!categoryCache.TryGetValue(en.EventId, out var cats))
+            {
+                cats = await _api.GetCategoriesAsync(en.EventId);
+                categoryCache[en.EventId] = cats;
+            }
+
+            var catName = cats.FirstOrDefault(c => c.CategoryId == en.CategoryId)?.CategoryName ?? $"Category {en.CategoryId}";
+            result.Add(new { Enrolment = en, Event = ev, CategoryName = catName });
+        }
+        return View(result);
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -69,12 +78,15 @@ public class ParticipantController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateProfile(UpdateProfileVm vm, IFormFile? profilePicture)
+    public async Task<IActionResult> UpdateProfile(
+        [Bind("FirstName,LastName,Phone,ProfilePictureUrl")] UpdateProfileVm vm,
+        IFormFile? profilePicture)
     {
         if (profilePicture != null && profilePicture.Length > 0)
         {
             await using var s = profilePicture.OpenReadStream();
-            var url = await _api.UploadFileAsync("api/uploads/profile-picture", s, profilePicture.FileName, profilePicture.ContentType);
+            var url = await _api.UploadFileAsync("api/uploads/profile-picture", s,
+                profilePicture.FileName, profilePicture.ContentType);
             if (url != null) vm.ProfilePictureUrl = url;
         }
 
