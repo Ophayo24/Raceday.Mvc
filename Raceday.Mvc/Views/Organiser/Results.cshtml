@@ -1,0 +1,44 @@
+﻿@model List<Raceday.Mvc.ViewModels.ResultVm>
+@{
+    var ev = ViewData["Event"] as Raceday.Mvc.ViewModels.EventVm;
+    var enrolments = ViewData["Enrolments"] as List<Raceday.Mvc.ViewModels.EventEnrolmentVm> ?? new();
+    ViewData["Title"] = $"Results · {ev?.Name}";
+}
+<h2>Results · @ev?.Name</h2>
+<div class="card mb-4">
+    <div class="card-header fw-bold">Capture a result</div>
+    <div class="card-body">
+        @if (!enrolments.Any())
+        {
+            <div class="text-muted">No enrolments yet.</div>
+        }
+        else
+        {
+            <form asp-action="CaptureResult" method="post" class="row g-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="eventId" value="@ev!.EventId" />
+                <div class="col-md-4">
+                    <select name="enrolmentId" class="form-select" required>
+                        @foreach (var en in enrolments)
+                        {
+                            <option value="@en.EnrolmentId">@en.ParticipantName (@en.CategoryName)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3"><input name="finishTime" class="form-control" placeholder="HH:MM:SS" required /></div>
+                <div class="col-md-2"><input name="finishingPosition" type="number" min="1" class="form-control" placeholder="Position" required /></div>
+                <div class="col-md-3"><button class="btn btn-primary w-100">Capture</button></div>
+            </form>
+        }
+    </div>
+</div>
+<h4>Recorded results</h4>
+<table class="table table-striped">
+    <thead><tr><th>#</th><th>Enrolment</th><th>Finish Time</th><th>Position</th></tr></thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr><td>@r.ResultId</td><td>@r.EnrolmentId</td><td>@r.FinishTime.ToString(@"hh\:mm\:ss")</td><td>@r.FinishingPosition</td></tr>
+        }
+    </tbody>
+</table>
