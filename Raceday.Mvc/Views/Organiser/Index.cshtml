@@ -1,0 +1,33 @@
+﻿@model List<Raceday.Mvc.ViewModels.EventVm>
+@{
+    ViewData["Title"] = "Organiser Dashboard";
+    var counts = ViewData["EnrolmentCounts"] as Dictionary<int, int> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Events</h2>
+    <a asp-action="CreateEvent" class="btn btn-primary">+ New Event</a>
+</div>
+
+<div class="row g-4">
+    @foreach (var e in Model)
+    {
+        <div class="col-md-6">
+            <div class="card card-event">
+                <div class="card-body">
+                    <h5>@e.Name</h5>
+                    <p class="small text-muted mb-1">@e.EventDate.ToString("dd MMM yyyy") · @e.Location</p>
+                    <p class="small">Enrolments: <strong>@counts.GetValueOrDefault(e.EventId, 0)</strong></p>
+                    <a asp-action="EditEvent" asp-route-id="@e.EventId" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a asp-action="Categories" asp-route-eventId="@e.EventId" class="btn btn-sm btn-outline-secondary">Categories</a>
+                    <a asp-action="Enrolments" asp-route-eventId="@e.EventId" class="btn btn-sm btn-outline-secondary">Enrolments</a>
+                    <a asp-action="Results" asp-route-eventId="@e.EventId" class="btn btn-sm btn-outline-secondary">Results</a>
+                    <form asp-action="DeleteEvent" asp-route-id="@e.EventId" method="post" class="d-inline" onsubmit="return confirm('Delete?');">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
