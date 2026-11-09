@@ -1,0 +1,14 @@
+﻿@model List<Raceday.Mvc.ViewModels.EventEnrolmentVm>
+@{
+    var ev = ViewData["Event"] as Raceday.Mvc.ViewModels.EventVm; ViewData["Title"] = $"Enrolments · {ev?.Name}";
+}
+<h2>Enrolments · @ev?.Name</h2>
+<table class="table table-hover">
+    <thead class="table-dark"><tr><th>Participant</th><th>Category</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>
+        @foreach (var e in Model)
+        {
+            <tr><td>@e.ParticipantName</td><td>@e.CategoryName</td><td>@e.EnrolmentDate.ToString("dd MMM yyyy")</td><td><span class="badge badge-confirmed">@e.Status</span></td></tr>
+        }
+    </tbody>
+</table>
