@@ -14,13 +14,15 @@ public class OrganiserController : Controller
     public async Task<IActionResult> Index()
     {
         var events = await _api.GetEventsAsync();
-        var myEvents = events; // API returns all; organiser only sees their own via filtering in client is fine for now
+        var myEvents = events; 
         var counts = new Dictionary<int, int>();
+
         foreach (var e in myEvents)
         {
             var ens = await _api.EventEnrolmentsAsync(e.EventId);
             counts[e.EventId] = ens.Count;
         }
+
         ViewData["EnrolmentCounts"] = counts;
         return View(myEvents);
     }
@@ -55,6 +57,7 @@ public class OrganiserController : Controller
     {
         var ev = await _api.GetEventAsync(id);
         if (ev == null) return NotFound();
+
         return View(new CreateEventVm
         {
             Name = ev.Name,
@@ -108,7 +111,12 @@ public class OrganiserController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> AddCategory(int eventId, CreateCategoryVm vm)
     {
-        if (!ModelState.IsValid) { TempData["Error"] = "Invalid category."; return RedirectToAction(nameof(Categories), new { eventId }); }
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "Invalid category.";
+            return RedirectToAction(nameof(Categories), new { eventId });
+        }
+
         var result = await _api.CreateCategoryAsync(eventId, vm);
         TempData[result.Success ? "Success" : "Error"] = result.Success ? "Category added." : result.Error ?? "Failed.";
         return RedirectToAction(nameof(Categories), new { eventId });
@@ -147,8 +155,10 @@ public class OrganiserController : Controller
             TempData["Error"] = "Invalid finish time. Use HH:MM:SS.";
             return RedirectToAction(nameof(Results), new { eventId });
         }
+
         var result = await _api.CaptureResultAsync(enrolmentId,
             new CreateResultVm { FinishTime = ts, FinishingPosition = finishingPosition });
+
         TempData[result.Success ? "Success" : "Error"] = result.Success ? "Result captured." : result.Error ?? "Failed.";
         return RedirectToAction(nameof(Results), new { eventId });
     }
