@@ -1,0 +1,58 @@
+﻿@model Raceday.Mvc.ViewModels.UserProfileVm
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                    {
+                        <img src="@Model.ProfilePictureUrl" alt="Profile" class="rounded-circle me-3" style="width:80px;height:80px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width:80px;height:80px;font-size:2rem;">
+                            @Model.FirstName.FirstOrDefault()
+                        </div>
+                    }
+                    <div>
+                        <h4 class="mb-0">@Model.FirstName @Model.LastName</h4>
+                        <span class="text-muted">@Model.Email · <span class="badge bg-dark">@Model.Role</span></span>
+                    </div>
+                </div>
+
+                <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ProfilePictureUrl" value="@Model.ProfilePictureUrl" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">First Name</label>
+                            <input name="FirstName" value="@Model.FirstName" class="form-control" required maxlength="50" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input name="LastName" value="@Model.LastName" class="form-control" required maxlength="50" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input name="Phone" value="@Model.Phone" class="form-control" maxlength="20" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Profile Picture</label>
+                        <input type="file" name="profilePicture" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+                        <div class="form-text">Max 5 MB. JPG, PNG, or WEBP.</div>
+                    </div>
+
+                    <button class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
