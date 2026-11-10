@@ -2,7 +2,7 @@
 
 This is the ASP.NET Core MVC front-end application for the RaceDay system. It consumes the Part 2 REST API to provide a clean, role-aware interface for Organisers and Participants.
 
-**Link to Part 2 API Repository:** [PASTE LINK TO RACEDAY REPO HERE]
+**Link to Part 2 API Repository:** https://github.com/Ophayo24/RaceDay-Part2
 
 ## Features
 - **Role-Based Navigation:** Distinct dashboards for Organisers and Participants.
